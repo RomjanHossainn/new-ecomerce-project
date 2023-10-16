@@ -30,9 +30,38 @@ async function run() {
     
     await client.connect();
 
-    const productsDatabase = client.db("EcommerceDB").collection('product');
+    
+    // user info
+    const userDatabase = client.db("EcommerceDB").collection('users');
+
+
+    app.post('/users',async(req,res) => {
+      const user = req.body;
+      const result = await userDatabase.insertOne(user);
+      res.send(result);
+    })
+
+    app.patch('/users',async(req,res) => {
+      const user = req.body;
+      
+      const filter = { userEmail: user.email};
+
+      const updateTime = {
+        $set: {
+          lastSignInTime: user.lastSignInTime
+        },
+      };
+
+      const result = await userDatabase.updateOne(filter,updateTime);
+
+      res.send(result)
+
+
+    })
 
     // product related work
+
+    const productsDatabase = client.db("EcommerceDB").collection("product");
     
     app.get('/products',async(req,res) => {
         const result = await productsDatabase.find().toArray('product');
